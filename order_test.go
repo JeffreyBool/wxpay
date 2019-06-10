@@ -18,7 +18,7 @@ func TestWXPay_UnifiedOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(result.PrepayId, result.CodeURL)
+	t.Log(result.PrepayId, result.MWebURL)
 }
 
 func TestWXPay_OrderQuery(t *testing.T) {
