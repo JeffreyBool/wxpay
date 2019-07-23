@@ -115,7 +115,7 @@ func (this *Client) doRequestWithTLS(method, url string, param Param, result int
 }
 
 func (this *Client) doRequestWithClient(client *http.Client, method, url string, param Param, result interface{}) (err error) {
-	key, err := this.getKey()
+	key, err := this.GetKey()
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func (this *Client) DoRequest(method, url string, param Param, results interface
 	return this.doRequest(method, url, param, results)
 }
 
-func (this *Client) getKey() (key string, err error) {
+func (this *Client) GetKey() (key string, err error) {
 	if this.isProduction == false {
 		key, err = this.getSignKey(this.apiKey)
 		if err != nil {

@@ -2,6 +2,7 @@ package wxpay
 
 import (
 	"testing"
+	"time"
 )
 
 func TestWXPay_UnifiedOrder(t *testing.T) {
@@ -9,16 +10,18 @@ func TestWXPay_UnifiedOrder(t *testing.T) {
 	var p = UnifiedOrderParam{}
 	p.Body = "test product"
 	p.NotifyURL = "http://www.test.com"
-	p.TradeType = K_TRADE_TYPE_NATIVE
+	p.TradeType = K_TRADE_TYPE_JSAPI
 	p.SpbillCreateIP = "202.105.107.18"
-	p.TotalFee = 101
-	p.OutTradeNo = "test-111111122sdf"
+	p.TotalFee = 1
+	p.OutTradeNo = time.Now().Format("20060102150405")
+	p.OpenId= "oLDyb1HoSBxz2ViWhR16C9vzosZI"
+	p.DeviceInfo = "WEB"
 
 	result, err := client.UnifiedOrder(p)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(result.PrepayId, result.MWebURL)
+	t.Logf("result: #%v \n",result)
 }
 
 func TestWXPay_OrderQuery(t *testing.T) {

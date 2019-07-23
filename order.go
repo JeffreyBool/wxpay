@@ -46,7 +46,7 @@ var (
 
 // DownloadBill https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_6
 func (this *Client) DownloadBill(param DownloadBillParam) (result *DownloadBillRsp, err error) {
-	key, err := this.getKey()
+	key, err := this.GetKey()
 	if err != nil {
 		return nil, err
 	}

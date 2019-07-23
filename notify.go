@@ -29,7 +29,7 @@ func (this *Client) GetPayApplyNotification(data []byte) (result *PayApplyNotifi
 
 //验签
 func (this *Client) verifyResponse(data []byte, result interface{}) (err error) {
-	key, err := this.getKey()
+	key, err := this.GetKey()
 	if err != nil {
 		return err
 	}
