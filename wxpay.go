@@ -87,9 +87,11 @@ func (this *Client) LoadCert(path string) (err error) {
 
 func (this *Client) URLValues(param Param, key string) (value url.Values, err error) {
 	var p = param.Params()
-	p.Set("appid", this.appId)
+	if appId := p.Get("appid"); appId == "" {
+		p.Set("appid", this.appId)
+	}
 	p.Set("mch_id", this.mchId)
-	p.Set("nonce_str", getNonceStr())
+	p.Set("nonce_str", GetNonceStr())
 
 	if _, ok := p["notify_url"]; ok == false {
 		if len(this.NotifyURL) > 0 {
@@ -115,7 +117,7 @@ func (this *Client) doRequestWithTLS(method, url string, param Param, result int
 }
 
 func (this *Client) doRequestWithClient(client *http.Client, method, url string, param Param, result interface{}) (err error) {
-	key, err := this.GetKey()
+	key, err := this.getKey()
 	if err != nil {
 		return err
 	}
@@ -125,7 +127,7 @@ func (this *Client) doRequestWithClient(client *http.Client, method, url string,
 		return err
 	}
 
-	req, err := http.NewRequest(method, url, strings.NewReader(UrlValueToXML(p)))
+	req, err := http.NewRequest(method, url, strings.NewReader(URLValueToXML(p)))
 	if err != nil {
 		return err
 	}
@@ -145,7 +147,7 @@ func (this *Client) doRequestWithClient(client *http.Client, method, url string,
 		return err
 	}
 
-	if _, err := verifyResponseData(data, key); err != nil {
+	if _, err := VerifyResponseData(data, key); err != nil {
 		return err
 	}
 
@@ -158,7 +160,7 @@ func (this *Client) DoRequest(method, url string, param Param, results interface
 	return this.doRequest(method, url, param, results)
 }
 
-func (this *Client) GetKey() (key string, err error) {
+func (this *Client) getKey() (key string, err error) {
 	if this.isProduction == false {
 		key, err = this.getSignKey(this.apiKey)
 		if err != nil {
@@ -177,12 +179,12 @@ func (this *Client) SignMD5(param url.Values) (sign string) {
 func (this *Client) getSignKey(apiKey string) (key string, err error) {
 	var p = make(url.Values)
 	p.Set("mch_id", this.mchId)
-	p.Set("nonce_str", getNonceStr())
+	p.Set("nonce_str", GetNonceStr())
 
 	var sign = SignMD5(p, apiKey)
 	p.Set("sign", sign)
 
-	req, err := http.NewRequest("POST", "https://api.mch.weixin.qq.com/sandboxnew/pay/getsignkey", strings.NewReader(UrlValueToXML(p)))
+	req, err := http.NewRequest("POST", "https://api.mch.weixin.qq.com/sandboxnew/pay/getsignkey", strings.NewReader(URLValueToXML(p)))
 	if err != nil {
 		return "", err
 	}
@@ -227,7 +229,7 @@ func (this *Client) BuildAPI(paths ...string) string {
 	return path
 }
 
-func UrlValueToXML(m url.Values) string {
+func URLValueToXML(m url.Values) string {
 	var xmlBuffer = &bytes.Buffer{}
 	xmlBuffer.WriteString("<xml>")
 
@@ -265,13 +267,17 @@ func SignMD5(param url.Values, key string) (sign string) {
 	return sign
 }
 
-func verifyResponseData(data []byte, key string) (ok bool, err error) {
+func VerifyResponseData(data []byte, key string) (ok bool, err error) {
 	var param = make(XMLMap)
 	err = xml.Unmarshal(data, &param)
 	if err != nil {
 		return false, err
 	}
 
+	return VerifyResponseValues(url.Values(param), key)
+}
+
+func VerifyResponseValues(param url.Values, key string) (bool, error) {
 	// 处理错误信息
 	var code = param.Get("return_code")
 	if code == K_RETURN_CODE_FAIL {
@@ -295,14 +301,14 @@ func verifyResponseData(data []byte, key string) (ok bool, err error) {
 		return false, errors.New("签名验证失败")
 	}
 
-	var sign2 = SignMD5(url.Values(param), key)
+	var sign2 = SignMD5(param, key)
 	if sign == sign2 {
 		return true, nil
 	}
 	return false, errors.New("签名验证失败")
 }
 
-func getNonceStr() (nonceStr string) {
+func GetNonceStr() (nonceStr string) {
 	chars := "abcdefghijklmnopqrstuvwxyz0123456789"
 	var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := 0; i < 32; i++ {

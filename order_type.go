@@ -26,6 +26,7 @@ const (
 ////////////////////////////////////////////////////////////////////////////////
 // https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_1
 type UnifiedOrderParam struct {
+	AppId          string // 是
 	NotifyURL      string // 是 异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。
 	Body           string // 是 商品简单描述，该字段请按照规范传递，具体请见参数规定
 	OutTradeNo     string // 是 商户系统内部订单号，要求32个字符内，只能是数字、大小写字母_-|*@ ，且在同一个商户号下唯一。详见商户订单号
@@ -56,6 +57,7 @@ type StoreInfo struct {
 
 func (this UnifiedOrderParam) Params() url.Values {
 	var m = make(url.Values)
+	m.Set("appid", this.AppId)
 	m.Set("notify_url", this.NotifyURL)
 	if len(this.SignType) == 0 {
 		this.SignType = kSignTypeMD5
@@ -105,6 +107,34 @@ type UnifiedOrderRsp struct {
 	TradeType  string `xml:"trade_type"`
 	CodeURL    string `xml:"code_url"`
 	MWebURL    string `xml:"mweb_url"`
+}
+
+// 客户端唤起支付所需要的信息：App 支付、微信内H5调起支付(公众号支付)、小程序支付
+// App 支付 - https://pay.weixin.qq.com/wiki/doc/api/app/app.php?chapter=9_12&index=2
+// 微信内H5调起支付 - https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=7_7&index=6
+// 小程序调起支付API - https://pay.weixin.qq.com/wiki/doc/api/wxa/wxa_api.php?chapter=7_7&index=5
+type PayInfo struct {
+	AppId     string           `json:"app_id"`
+	PartnerId string           `json:"partner_id"`
+	PrepayId  string           `json:"prepay_id"`
+	Package   string           `json:"package"`
+	NonceStr  string           `json:"nonce_str"`
+	TimeStamp string           `json:"timestamp"`
+	Sign      string           `json:"sign"`
+	SignType  string           `json:"sign_type"`
+	RawRsp    *UnifiedOrderRsp `json:"-"`
+}
+
+// WebPayInfo https://pay.weixin.qq.com/wiki/doc/api/H5.php?chapter=9_20&index=1
+type WebPayInfo struct {
+	MWebURL string           `json:"mweb_url"`
+	RawRsp  *UnifiedOrderRsp `json:"-"`
+}
+
+// NativePayInfo https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=9_1
+type NativePayInfo struct {
+	CodeURL string           `json:"code_url"`
+	RawRsp  *UnifiedOrderRsp `json:"-"`
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -29,11 +29,11 @@ func (this *Client) GetPayApplyNotification(data []byte) (result *PayApplyNotifi
 
 //验签
 func (this *Client) verifyResponse(data []byte, result interface{}) (err error) {
-	key, err := this.GetKey()
+	key, err := this.getKey()
 	if err != nil {
 		return err
 	}
-	if _, err := verifyResponseData(data, key); err != nil {
+	if _, err := VerifyResponseData(data, key); err != nil {
 		return err
 	}
 	return this.Unmarshal(data, result)
@@ -49,5 +49,5 @@ func AckNotification(w http.ResponseWriter) {
 	v.Set("return_msg", "OK")
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(UrlValueToXML(v)))
+	w.Write([]byte(URLValueToXML(v)))
 }
