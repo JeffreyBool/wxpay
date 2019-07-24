@@ -2,6 +2,7 @@ package wxpay
 
 import (
 	"testing"
+	"time"
 )
 
 func TestWXPay_UnifiedOrder(t *testing.T) {
@@ -18,7 +19,8 @@ func TestWXPay_UnifiedOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(result.PrepayId, result.CodeURL, result.MWebURL)
+
+	t.Logf("result: %#v \n",result)
 }
 
 func TestWXPay_AppPay(t *testing.T) {
@@ -42,6 +44,22 @@ func TestWXPay_AppPay(t *testing.T) {
 	t.Log("NonceStr", result.NonceStr)
 	t.Log("TimeStamp", result.TimeStamp)
 	t.Log("Sign", result.Sign)
+}
+
+func TestJSAPIPay(t *testing.T)  {
+	var p = UnifiedOrderParam{}
+	p.Body = "test product"
+	p.NotifyURL = "http://www.test.com"
+	p.SpbillCreateIP = "202.105.107.18"
+	p.TotalFee = 1
+	p.OutTradeNo = time.Now().Format("20060102150405")
+	p.OpenId= "oLDyb1HoSBxz2ViWhR16C9vzosZI"
+	p.DeviceInfo = "WEB"
+	result, err := client.JSAPIPay(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("result: %#v \n",result)
 }
 
 func TestWXPay_OrderQuery(t *testing.T) {

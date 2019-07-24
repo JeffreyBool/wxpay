@@ -37,7 +37,7 @@ func (this *Client) AppPay(param UnifiedOrderParam) (result *PayInfo, err error)
 
 	if rsp != nil {
 		result = &PayInfo{}
-		result.AppId = param.AppId
+		result.AppId = this.appId
 		result.PartnerId = this.mchId
 		result.PrepayId = rsp.PrepayId
 		result.Package = "Sign=WXPay"
@@ -69,7 +69,7 @@ func (this *Client) JSAPIPay(param UnifiedOrderParam) (result *PayInfo, err erro
 
 	if rsp != nil {
 		result = &PayInfo{}
-		result.AppId = param.AppId
+		result.AppId = this.appId
 		result.PartnerId = this.mchId
 		result.PrepayId = rsp.PrepayId
 		result.Package = fmt.Sprintf("prepay_id=%s", rsp.PrepayId)

@@ -1,7 +1,6 @@
 package wxpay
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -13,6 +12,6 @@ func TestMain(m *testing.M) {
 	client = New("wx20fa044851046bbf", "1v4h5g4s8u1x25tf451d025e10geagf2", "1299730801", false)
 
 	// 加载退款需要的证书
-	fmt.Println(client.LoadCert("./tp.p12"))
+	//fmt.Println(client.LoadCert("./tp.p12"))
 	os.Exit(m.Run())
 }
