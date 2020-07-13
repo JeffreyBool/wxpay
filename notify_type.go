@@ -31,6 +31,30 @@ type TradeNotification struct {
 	TimeEnd            string `xml:"time_end"`
 }
 
+// RefundNotification 退款结果
+// docs: https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_16&index=10
+type RefundNotification struct {
+	ReturnCode          string `xml:"return_code"`           // 返回状态码
+	ReturnMsg           string `xml:"return_msg"`            // 当return_code为FAIL时返回信息为错误原因 ，例如 签名失败 参数格式校验错误
+	AppId               string `xml:"appid"`                 // 微信分配的公众账号ID（企业号corpid即为此appId）
+	MCHId               string `xml:"mch_id"`                // 微信支付分配的商户号
+	NonceStr            string `xml:"nonce_str"`             // 随机字符串，不长于32位。推荐随机数生成算法
+	ReqInfo             string `xml:"req_info"`              // 加密信息请用商户秘钥进行解密，详见解密方式
+	TransactionId       string `xml:"transaction_id"`        // 微信订单号
+	OutTradeNo          string `xml:"out_trade_no"`          // 商户系统内部的订单号
+	RefundId            string `xml:"refund_id"`             // 微信退款单号
+	OutRefundNo         string `xml:"out_refund_no"`         // 商户退款单号
+	TotalFee            int    `xml:"total_fee"`             // 订单总金额，单位为分，只能为整数，详见支付金额
+	SettlementTotalFee  int    `xml:"settlement_total_fee"`  // 当该订单有使用非充值券时，返回此字段。应结订单金额=订单金额-非充值代金券金额，应结订单金额<=订单金额。
+	RefundFee           int    `xml:"refund_fee"`            // 退款总金额,单位为分
+	SettlementRefundFee int    `xml:"settlement_refund_fee"` // 退款金额=申请退款金额-非充值代金券退款金额，退款金额<=申请退款金额
+	RefundStatus        string `xml:"refund_status"`         // 退款状态 SUCCESS-退款成功 CHANGE-退款异常 REFUNDCLOSE—退款关闭
+	SuccessTime         string `xml:"success_time"`          // 退款成功时间 资金退款至用户帐号的时间，格式2017-12-15 09:46:01
+	RefundRecvAccout    string `xml:"refund_recv_accout"`    // 退款入账账户
+	RefundAccount       string `xml:"refund_account"`        // 退款资金来源 REFUND_SOURCE_RECHARGE_FUNDS 可用余额退款/基本账户 REFUND_SOURCE_UNSETTLED_FUNDS 未结算资金退款
+	RefundRequestSource string `xml:"refund_request_source"` // 退款发起来源
+}
+
 //签约解约结果通知
 //docs: https://pay.weixin.qq.com/wiki/doc/api/pap.php?chapter=18_17&index=6
 type ContractNotification struct {

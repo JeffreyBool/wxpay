@@ -17,6 +17,12 @@ func (this *Client) GetTradeNotification(data []byte) (result *TradeNotification
 	return result, this.verifyResponse(data, &result)
 }
 
+// GetRefundNotification 退款结果通知
+// docs: https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_16&index=10
+func (this *Client) GetRefundNotification(data []byte) (result *RefundNotification, err error) {
+	return result, this.verifyResponse(data, &result)
+}
+
 //签约解约异步通知
 func (this *Client) GetContractNotification(data []byte) (result *ContractNotification, err error) {
 	return result, this.verifyResponse(data, &result)
