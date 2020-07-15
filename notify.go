@@ -59,7 +59,7 @@ func (this *Client) GetRefundNotification(data []byte) (result *RefundNotificati
 	result.MCHId = param.Get("mch_id")
 	result.NonceStr = param.Get("nonce_str")
 	result.ReqInfo = param.Get("req_info")
-	result.ReturnCode = code
+	result.ReturnCode = param.Get("return_code")
 	result.ReturnMsg = param.Get("return_msg")
 	return result, nil
 }
