@@ -1,9 +1,13 @@
 package wxpay
 
 import (
+	"encoding/base64"
 	"encoding/xml"
 	"net/http"
 	"net/url"
+	"strings"
+
+	"github.com/nanjishidu/gomini/gocrypto"
 )
 
 //xml 解析
@@ -20,7 +24,30 @@ func (this *Client) GetTradeNotification(data []byte) (result *TradeNotification
 // GetRefundNotification 退款结果通知
 // docs: https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_16&index=10
 func (this *Client) GetRefundNotification(data []byte) (result *RefundNotification, err error) {
-	return result, this.verifyResponse(data, &result)
+	body, err := base64.StdEncoding.DecodeString(string(data))
+	if err != nil {
+		return nil, err
+	}
+	var param = make(XMLMap)
+	err = xml.Unmarshal(body, &param)
+	if err != nil {
+		return nil, err
+	}
+	bytes, err := this.DecryptRefundNotifyReqInfo(param.Get("req_info"))
+	if err != nil {
+		return nil, err
+	}
+	if err = this.Unmarshal(bytes,&result); err != nil {
+		return nil, err
+	}
+
+	result.AppId = param.Get("appid")
+	result.MCHId = param.Get("mch_id")
+	result.NonceStr = param.Get("nonce_str")
+	result.ReqInfo = param.Get("req_info")
+	result.ReturnCode = param.Get("return_code")
+	result.ReturnMsg = param.Get("return_msg")
+	return result, nil
 }
 
 //签约解约异步通知
@@ -31,6 +58,27 @@ func (this *Client) GetContractNotification(data []byte) (result *ContractNotifi
 //签约扣款异步通知
 func (this *Client) GetPayApplyNotification(data []byte) (result *PayApplyNotification, err error) {
 	return result, this.verifyResponse(data, &result)
+}
+
+// 解密微信退款异步通知的加密数据
+// reqInfo：gopay.ParseRefundNotify() 方法获取的加密数据 req_info
+// apiKey：API秘钥值
+// 返回参数refundNotify：RefundNotify请求的加密数据
+// 返回参数err：错误信息
+// 文档：https://pay.weixin.qq.com/wiki/doc/api/jsapi.php?chapter=9_16&index=10
+func (this *Client) DecryptRefundNotifyReqInfo(reqInfo string) (result []byte, err error) {
+	key, err := this.getKey()
+	if err != nil {
+		return nil, err
+	}
+	b, err := base64.StdEncoding.DecodeString(reqInfo)
+	if err != nil {
+		return nil, err
+	}
+	if err = gocrypto.SetAesKey(strings.ToLower(gocrypto.Md5(key))); err != nil {
+		return nil, err
+	}
+	return gocrypto.AesECBDecrypt(b)
 }
 
 //验签
